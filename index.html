@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Translation App</title>
+  <script src="main.js"></script>
+  <style>
+    input {
+      display: block;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Translation App</h1>
+  <input type="text" id="input-text" placeholder="Enter text to translate">
+  <button id="translate-button">Translate</button>
+  <div id="output"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    const apiKey = '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';
+
+    async function translateText(text, language) {
+      const response = await axios({
+        method: 'post',
+        url: 'https://api.openai.com/v1/engines/davinci-codex/completions',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        data: {
+          prompt: `Translate the following text into ${language}: ${text}`,
+          max_tokens: 60,
+          n: 1,
+          stop: '\n',
+        },
+      });
+
+      const translations = response.data.choices.map(choice => choice.text.trim());
+      return translations[0];
+    }
+
+    const inputText = document.getElementById('input-text');
+    const translateButton = document.getElementById('translate-button');
+    const output = document.getElementById('output');
+
+    translateButton.addEventListener('click', async () => {
+      const text = inputText.value;
+      const language = 'Viet';
+      const translation = await translateText(text, language);
+      output.textContent = translation;
+    });
+
+    inputText.addEventListener('keydown', async event => {
+      if (event.key === 'Enter') {
+        const text = inputText.value;
+        const language = 'English';
+        const translation = await translateText(text, language);
+        output.textContent = translation;
+      }
+    });
+  </script>
+</body>
+</html>
